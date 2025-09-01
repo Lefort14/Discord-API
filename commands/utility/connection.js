@@ -12,9 +12,9 @@ module.exports = {
     .setName('connect')
     .setDescription('connect to voice channel'),
     async execute(interaction) {
-		await interaction.reply('подключился!')	
+		await interaction.reply('**Подключился!**')	
 		if(!interaction.member.voice.channel) {
-			interaction.reply(`зайди в голосовой чат!`)
+			interaction.reply(`**Зайди в голосовой чат!**`)
 		}
 		
 		joinVoiceChannel({

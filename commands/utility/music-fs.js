@@ -89,11 +89,7 @@ function playTrack(track, interaction) {
   if (!playerState.player) { // если нет аудиоплеера, то создаём его
     playerState.player = createAudioPlayer(); // "Включить музыку на телефоне"
     playerState.connection.subscribe(playerState.player); // "Подключить телефон к колонкам"
-  } else {
-  // Удаляем старые обработчики перед добавлением новых
-    playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
-    playerState.player.removeAllListeners('error');
-}
+  } 
 
   playerState.player.play(resource); // "Нажать play на телефоне"
   if (playerState.queue.length > 0) {
