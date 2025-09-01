@@ -1,21 +1,12 @@
-# Зависимости
+config.json
+.env
+secrets.*
 node_modules/
-
-# Логи
 events/
 *.txt
-
-# Системные файлы
 .DS_Store
 Thumbs.db
-
-# Среда разработки
 .idea/
 .vscode/
-
-# Временные файлы
 tmp/
 temp/
-
-./config.json
-secrets.*
