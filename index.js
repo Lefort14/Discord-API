@@ -1,8 +1,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const { token } = require('./config.json');
-
+require('dotenv').config();
+const token = process.env.TOKEN;
 
 const client = new Client({
 	intents: [
@@ -45,6 +45,7 @@ for (const file of eventFiles) { // работаем с файлами папк�
 }
 
 //////////////////////////////////////
+
 
 client.on('ready', () => {
 	const guilds = client.guilds.cache // получаем ID гильдий
