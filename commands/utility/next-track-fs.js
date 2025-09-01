@@ -29,15 +29,25 @@ module.exports = {
             return interaction.editReply("**Бот не в голосовом чате!**");
           }
         
-        nextTrackList(interaction)
+      try {
+        nextTrackList(interaction) 
+      } catch (error) {
+        console.log('Произошла ошибка:' + ` ${error}`);
+      }
     }
 }
 
 function nextTrackList(interaction) {
-    if(playerState.isPlaying && playerState.queque.length > 0) {
-            playerState.nextTrack = playerState.queque.shift()
-            playTrack(playerState.nextTrack, interaction)
-          } else {
-            return interaction.editReply(`**Нет доступных треков!**`)
-          }
+    if(playerState.isPlaying && playerState.queue.length > 0) {
+      playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
+      playerState.player.removeAllListeners('error');      
+      if(playerState.queue.index < playerState.queue.length - 1) {
+        playerState.nextTrack = playerState.queue.next()
+        playTrack(playerState.nextTrack, interaction)
+      } else {
+        return interaction.editReply('**Это последний трек в списке!**')
+      }
+    } else {
+      return interaction.editReply(`**Нет доступных треков!**`)
+      }
 }

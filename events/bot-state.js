@@ -26,12 +26,11 @@ module.exports = {
 }
 
 function cleanPlayer() {
-    playerState.connection.destroy()
-    playerState.player.stop()
+    playerState.connection = null
     playerState.player = null
     playerState.isPlaying = false
     playerState.currentTrack = null
-    playerState.queque = []
+    playerState.queue = []
     playerState.nextTrack = null
-    playerState.connection = null
+    playerState.index = null
 }
