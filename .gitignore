@@ -5,9 +5,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+*.txt
+
+# music-files
+music-files/*
 
 # config
-config.json
+**/config.json
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -41,7 +45,7 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
+**/node_modules/
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
