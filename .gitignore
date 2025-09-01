@@ -17,5 +17,5 @@ Thumbs.db
 tmp/
 temp/
 
-./config.json*.env
+./config.json
 secrets.*
