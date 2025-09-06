@@ -1,26 +1,28 @@
 const { SlashCommandBuilder } = require('discord.js')
+require('dotenv').config();
+const url = process.env.FETCH_URL;
 
 const debt = new SlashCommandBuilder()
 .setName('debt')
-.setDescription('показывает долг Игоря!')
+.setDescription('показывает долги!')
 .addStringOption(option => 
     option
     .setName('debts')
     .setDescription('debts category')
     .setRequired(true)
     .addChoices(
-        { name: 'Max debt', value: 'Mdebt' },
-        { name: 'Den debt', value: 'Ddebt' }
+        { name: 'One debt', value: 'Mdebt' },
+        { name: 'Two debt', value: 'Ddebt' }
 ))
 
 module.exports = {
     data: debt,
     async execute(interaction) {
-        const response = await fetch('https://docs.google.com/spreadsheets/d/1Lk1PVl6_WMEaj3OHGeVgnqFTZixkhTF3zarQ3qp2m_0/gviz/tq?tqx=out:json');
+        const response = await fetch(url);
         const rawText = await response.text();
         const choice = interaction.options.getString('debts')
             
-        // Правильный способ обработки ответа Google Sheets
+        // Обработка ответа Google Sheets
         const jsonString = rawText.match(/google\.visualization\.Query\.setResponse\((.+)\)/)[1];
         const data = JSON.parse(jsonString);
         
@@ -31,13 +33,13 @@ module.exports = {
         
         console.log(`Данные таблицы: ${rows[0].join(' ')}`);
 
-        let message = 'Долг';
+        let message = '';
         rows.forEach(row => {
             if(choice === 'Mdebt') {
-            message += ` Максу: ${row[0]} ₽`
+            message += `** Первый долг: ${row[0]} ₽**`
             }
             if (choice === 'Ddebt') {
-            message += ` Денису: ${row[1]} ₽`
+            message += `** Второй долг: ${row[1]} ₽**`
             }
         });
 

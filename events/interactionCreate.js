@@ -22,8 +22,8 @@ if (!cooldowns.has(command.data.name)) {
 
 const now = Date.now();
 const timestamps = cooldowns.get(command.data.name);
-const defaultCooldownDuration = 3;
-const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1_000;
+const defaultCooldownDuration = 1; // задержка при вводе команды в виде одной секунды
+const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1_000; // задержка при вводе команды с перерасчётом на миллисекунды
 
 if (timestamps.has(interaction.user.id)) {
 	const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;

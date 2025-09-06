@@ -1,5 +1,5 @@
 const path = require('path')
 
-const musicPath = path.join(__dirname, '..', '..', '..', 'music-files')
+const MUSIC_PATH = path.join(__dirname, '..', '..', '..', 'music-files')
 
-module.exports = musicPath
+module.exports = MUSIC_PATH

@@ -5,7 +5,6 @@ module.exports = {
     isPlaying: false,
     currentTrack: null,
     queue: new ArrayNavigator(),
-    index: null,
     nextTrack: null,
     connection: null,
 }

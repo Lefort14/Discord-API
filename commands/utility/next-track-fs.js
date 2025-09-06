@@ -1,9 +1,8 @@
 const { SlashCommandBuilder } = require('discord.js')
 const { AudioPlayerStatus } = require('@discordjs/voice')
 const playerState = require('./state/playerState-fs.js')
-const { playTrack, trackEmitter } = require('./music-fs.js')
-
-const trackEmitterNext = trackEmitter
+const { playTrack } = require('./music-fs.js')
+const { queue } = require('./queue-fs.js')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -33,12 +32,13 @@ module.exports = {
         nextTrackList(interaction) 
       } catch (error) {
         console.log('Произошла ошибка:' + ` ${error}`);
+        return interaction.editReply('**Произошла ошибка!**')
       }
     }
 }
 
 function nextTrackList(interaction) {
-    if(playerState.isPlaying && playerState.queue.length > 0) {
+    if(playerState.queue.length > 0) {
       playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
       playerState.player.removeAllListeners('error');      
       if(playerState.queue.index < playerState.queue.length - 1) {

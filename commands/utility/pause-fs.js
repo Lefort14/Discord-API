@@ -42,6 +42,7 @@ module.exports = {
           }
         } catch (error) {
           console.log('Произошла ошибка:' + ` ${error}`);
+          return interaction.editReply('**Произошла ошибка!**')
         }
   },
 };

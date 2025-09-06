@@ -45,7 +45,8 @@ module.exports = {
                     return interaction.editReply('**Неизвестное состояние плеера!**')
                         }
         } catch (error) {
-            console.log('Произошла ошибка:' + ` ${error}`);      
+            console.log('Произошла ошибка:' + ` ${error}`);    
+            return interaction.editReply('**Произошла ошибка!**')  
             }
     }
 }

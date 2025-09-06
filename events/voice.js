@@ -39,11 +39,14 @@ module.exports = {
             const channel = newState.guild.channels.cache.get('1383879797503164567');
             
             const mess = [
-                `О-о-о баля,`, `Ашалеть,`,
+                `О-о-о,`, `Ашалеть,`,
                 `Иу!`, `Салам, родной`
             ]
             
-            
+            const randomMess = mess[Math.floor(Math.random() * mess.length)]
+
+            const nameUser = newState.member.displayName
+
             try {
                 if(newState.channel) {
                     let channel1 = newState.channel.name
@@ -57,10 +60,10 @@ module.exports = {
                     if(newState.channel.name === 'Дом в Шатуре') {
                         channel1 = 'зашёл в дом в Шатуре'
                     }
-                    channel.send(`${mess[Math.floor(Math.random() * mess.length)]} ${newState.member.displayName} ${channel1}!`);              
+                    channel.send(`**${randomMess} ${nameUser} ${channel1}!**`);              
                 } 
-            } catch(err) {
-                console.log('неверный токен канала')
+            } catch(error) {
+                console.log('Произошла ошибка:' + ` ${error}`);  
             }
         }
     }

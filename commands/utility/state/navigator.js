@@ -42,6 +42,3 @@ class ArrayNavigator {
 module.exports = {
     ArrayNavigator
 }
-
-// console.log(Object.getOwnPropertyNames(Array.prototype)
-//   .filter(prop => typeof Array.prototype[prop] === 'function'));
