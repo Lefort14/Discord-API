@@ -52,5 +52,3 @@ client.on('ready', () => {
 })
 
 client.login(token) // запускаем бота по токену
-
-

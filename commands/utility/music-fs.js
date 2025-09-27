@@ -10,6 +10,7 @@ const playerState = require("./state/playerState-fs.js");
 const MUSIC_PATH = require("./state/path.js"); // путь к папке с музыкой
 const { ArrayNavigator } = require("./state/navigator.js");
 
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("play")
@@ -29,11 +30,11 @@ module.exports = {
   // )
 
   // )
-  async execute(interaction) { // иницализируем функцию
+  async execute(interaction) { // инициализируем функцию
    
     await interaction.deferReply();  // ожидание ответа
 
-    if (!interaction.member.voice.channel) { // если пользователь не в чате, то возвращаемм результат
+    if (!interaction.member.voice.channel) { // если пользователь не в чате, то возвращаем результат
       return interaction.editReply(`**зайди в голосовой чат!**`);
     }
 
@@ -72,13 +73,13 @@ module.exports = {
     // Воспроизведение
     playerState.isPlaying = true; // меняем состояние isPlaying на true
     playerState.currentTrack = selectedTrack; // передаём в свойство текущий трек
-    playTrack(selectedTrack, interaction); // запускаемм функцию
+    playTrack(selectedTrack, interaction); // запускаем функцию
   },
   playTrack: playTrack,
 };
 
 
-///////////////////////////////////////////
+// * /////////////////////////////////////////
 
 
 function playTrack(track, interaction) {
@@ -97,7 +98,7 @@ function playTrack(track, interaction) {
     );
   } else interaction.Reply(`**Сейчас играет: ${track}**`);
 
-  playerState.player.on(AudioPlayerStatus.Idle, () => { // если песня закончилась, то включить следующий трек в очереди, если его нет, то переключаем состояние плеера
+  playerState.player.on(AudioPlayerStatus.Idle, () => { // если песня закончилась, то включить следующий трек в очереди, если его нет, то очищаем очередь и состояние плеера
     if (playerState.queue.length > 0 && playerState.queue.index < playerState.queue.array.length - 1) {
       playerState.nextTrack = playerState.queue.next()
       playTrack(playerState.nextTrack, interaction);
