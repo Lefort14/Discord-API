@@ -21,15 +21,6 @@ module.exports = {
         .setDescription("Введите название песни!")
         .setRequired(true)
     ),
-  // .addStringOption((option) =>
-  // option
-  // .setName("folder")
-  // .setDescription("Выберите песню из папки!")
-  // .setRequired(false)
-  // .addChoices(
-  // )
-
-  // )
   async execute(interaction) { // инициализируем функцию
    
     await interaction.deferReply();  // ожидание ответа
