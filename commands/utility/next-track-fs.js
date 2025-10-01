@@ -1,8 +1,9 @@
 const { SlashCommandBuilder } = require('discord.js')
 const { AudioPlayerStatus } = require('@discordjs/voice')
 const playerState = require('./state/playerState-fs.js')
-const { playTrack } = require('./music-fs.js')
-const { queue } = require('./queue-fs.js')
+const { playTrack, getMP3Metadata } = require('./music-fs.js')
+
+
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -43,6 +44,8 @@ function nextTrackList(interaction) {
       playerState.player.removeAllListeners('error');      
       if(playerState.queue.index < playerState.queue.length - 1) {
         playerState.nextTrack = playerState.queue.next()
+        const getTrack = getMP3Metadata(playerState.nextTrack, interaction)
+        interaction.editReply(getTrack)
         playTrack(playerState.nextTrack, interaction)
       } else {
         return interaction.editReply('**Это последний трек в списке!**')
