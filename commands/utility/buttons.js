@@ -3,7 +3,7 @@ const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = re
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName('bbutton')
+    .setName('button')
     .setDescription('показывает кнопки!'),
     async execute(interaction) {
         

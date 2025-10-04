@@ -41,7 +41,8 @@ module.exports = {
     const getTrack = getMP3Metadata(track, interaction);
     if (!getTrack) return;
     const selectedTrack = getTrack.trackName;
-
+    
+    const getEmbed = embedFn(getTrack)
     // Поиск песни в папке
     // const files = fs.readdirSync(MUSIC_PATH); // перебираем папку с музыкой
     // const founder = files.filter((file) => { // фильтруем папку с музыкой
@@ -55,8 +56,7 @@ module.exports = {
     // const randomIndex = Math.floor(Math.random() * founder.length); // создаём рандомайзер для найденных файлов
     // const selectedTrack = founder[randomIndex]; // создаём переменную файла с рандомным индексом
 
-    if (!playerState.connection) {
-      // если нет подключения, то создаём его. "Войти в комнату с колонками"
+    if (!playerState.connection) { // если нет подключения, то создаём его. "Войти в комнату с колонками"
       playerState.connection = joinVoiceChannel({
         channelId: interaction.member.voice.channel.id,
         guildId: interaction.guild.id,
@@ -76,13 +76,14 @@ module.exports = {
     // Воспроизведение
     playerState.isPlaying = true; // меняем состояние isPlaying на true
     playerState.currentTrack = selectedTrack; // передаём в свойство текущий трек
-    await interaction.editReply(getTrack);
-    if (!getTrack.musicState) {
-      playTrack(selectedTrack, interaction); // запускаем функцию
+    await interaction.editReply(getEmbed);
+    if (!getEmbed.musicState) {
+      playTrack(selectedTrack); // запускаем функцию
     }
   },
   playTrack,
   getMP3Metadata,
+  embedFn
 };
 
 // * /////////////////////////////////////////
@@ -166,46 +167,53 @@ function getMP3Metadata(track, interaction) {
     attachment = new AttachmentBuilder(def, { name: "default.jpg" });
     url = "attachment://default.jpg";
   }
+  return {
+    trackName: selectedTrack,
+    songName: songName, 
+    authorName: authorName,
+    image: url,
+    files: [attachment]
+  }
+}
 
+function embedFn(data) {
   if (playerState.isPlaying) {
     // если песня уже играет, то передаём найденный файл в очередь
-    playerState.queue.push(selectedTrack);
+    playerState.queue.push(data?.trackName);
     return {
       embeds: [
         new EmbedBuilder()
-          .setTitle(songName)
+          .setTitle(data?.songName)
           .setAuthor({ name: "Трек добавлен!" })
-          .setDescription(authorName)
-          .setThumbnail(url)
+          .setDescription(data?.authorName)
+          .setThumbnail(data?.url)
           .addFields({
             name: `Добавлено в очередь`,
-            value: `Позиция в очереди: ${playerState.queue.index + 1}`,
+            value: `Позиция в очереди: ${playerState.queue.array.length - 1}`,
             inline: true,
           }),
       ],
-      files: [attachment],
-      trackName: selectedTrack,
+      file: data?.files,
       musicState: true,
     };
   } else {
-    playerState.queue.push(selectedTrack);
+    playerState.queue.push(data?.trackName);
   }
   return {
     embeds: [
       new EmbedBuilder()
-        .setTitle(songName)
+        .setTitle(data?.songName)
         .setAuthor({ name: "Трек добавлен!" })
-        .setDescription(authorName)
-        .setThumbnail(url),
+        .setDescription(data?.authorName)
+        .setThumbnail(data?.url),
     ],
-    files: [attachment],
-    trackName: selectedTrack,
+    file: data?.files,
     musicState: false,
   };
 }
 
 /*
  * // ! Разделить функцию getMP3Metadata() на несколько частей
- * // ! Отрегулировать индексирование треков
+ * // ! От регулировать индексирование треков
  * // ! Добавить класс PlayerState() заместо объекта состояния
  */
