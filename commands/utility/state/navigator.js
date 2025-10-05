@@ -33,6 +33,10 @@ class ArrayNavigator {
         return this.current()
     }
 
+    indexOf(...elements) {
+        this.array.indexOf(...elements)
+    }
+
     get length() { // Это геттер (getter) - специальный метод в JavaScript, который позволяет обращаться к свойству как к обычному полю, но при этом выполняется функция.
         return this.array.length
     }

@@ -1,10 +1,15 @@
 const { ArrayNavigator } = require('./navigator')
 
-module.exports = {
-    player: null,
-    isPlaying: false,
-    currentTrack: null,
-    queue: new ArrayNavigator(),
-    nextTrack: null,
-    connection: null,
+class State {
+    constructor() {
+        this.player = null
+        this.isPlaying = false
+        this.currentTrack = null
+        this.queue = new ArrayNavigator()
+        this.nextTrack = null
+        this.connection = null
+        this.lastMessage = null
+    }
 }
+
+module.exports = { State }

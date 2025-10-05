@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js')
 const { AudioPlayerStatus } = require('@discordjs/voice')
-const playerState = require('./state/playerState-fs.js')
-const { playTrack, getMP3Metadata } = require('./music-fs.js')
+const { playTrack, playerState } = require('./controllers/music-player.js')
 
 
 
@@ -38,15 +37,17 @@ module.exports = {
     }
 }
 
-function nextTrackList(interaction) {
+async function nextTrackList(interaction) {
     if(playerState.queue.length > 0) {
+      
       playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
       playerState.player.removeAllListeners('error');      
+      
       if(playerState.queue.index < playerState.queue.length - 1) {
+        
         playerState.nextTrack = playerState.queue.next()
-        const getTrack = getMP3Metadata(playerState.nextTrack, interaction)
-        interaction.editReply(getTrack)
         playTrack(playerState.nextTrack, interaction)
+        await interaction.deleteReply(); // удаляем скрытый ответ
       } else {
         return interaction.editReply('**Это последний трек в списке!**')
       }

@@ -1,8 +1,8 @@
 const { Events } = require("discord.js");
 const fs = require("fs");
-const playerState = require("../commands/utility/state/playerState-fs.js");
 const path = require('path');
 const { ArrayNavigator } = require("../commands/utility/state/navigator.js");
+const { playerState } = require('../commands/utility/controllers/music-player.js')
 
 const logsPath = path.join(__dirname, 'logs.txt') 
 
@@ -54,4 +54,5 @@ function cleanPlayer() {
     playerState.currentTrack = null;
     playerState.queue = new ArrayNavigator([]);
     playerState.nextTrack = null;
+    playerState.lastMessage = null;
 }
