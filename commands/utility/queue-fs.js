@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, messageLink } = require('discord.js')
-const playerState = require('./state/playerState-fs.js')
+const { playerState } = require('./controllers/music-player')
 const { AudioPlayerStatus } = require("@discordjs/voice");
 module.exports = {
     data: new SlashCommandBuilder()

@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require("discord.js");
 const { AudioPlayerStatus } = require("@discordjs/voice");
-const playerState = require("./state/playerState-fs.js");
+const { playerState } = require('./controllers/music-player')
 
 module.exports = {
   data: new SlashCommandBuilder()

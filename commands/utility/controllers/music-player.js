@@ -5,11 +5,11 @@ const {
   AudioPlayerStatus,
 } = require("@discordjs/voice");
 const fs = require("fs");
-const { State } = require("./../state/playerState-fs.js");
-const { ArrayNavigator } = require("./../state/navigator.js");
+const { State } = require("../classes/playerState-fs.js");
+const { ArrayNavigator } = require("../classes/navigator.js");
 const NodeID3 = require("node-id3");
 const playerState = new State();
-const MUSIC_PATH = require("./../state/path.js"); 
+const MUSIC_PATH = require("./path.js");
 const path = require("path");
 const mm = require("music-metadata");
 
