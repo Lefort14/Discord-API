@@ -1,24 +1,19 @@
-const { EmbedBuilder, AttachmentBuilder } = require("discord.js");
 const {
   createAudioPlayer,
   createAudioResource,
   AudioPlayerStatus,
 } = require("@discordjs/voice");
-const fs = require("fs");
-const { State } = require("../classes/playerState-fs.js");
+const { playerState } = require("../classes/playerState-fs.js");
+const { nav } = require("../classes/queueNavigator.js");
 const { ArrayNavigator } = require("../classes/navigator.js");
-const NodeID3 = require("node-id3");
-const playerState = new State();
 const MUSIC_PATH = require("./path.js");
-const path = require("path");
-const mm = require("music-metadata");
 
 module.exports = {
   playTrack,
-  getMP3Metadata,
-  embedFn,
-  getTrackDuration,
-  playerState,
+  queue,
+  stopPlayer,
+  prevTrackList,
+  nextTrackList,
 };
 
 async function playTrack(track, interaction) {
@@ -32,7 +27,18 @@ async function playTrack(track, interaction) {
   }
 
   if (playerState.lastMessage) {
-    playerState.lastMessage.delete();
+    try {
+      await playerState.lastMessage.delete();
+    } catch (err) {
+      if (err.code === 10008) {
+        // Unknown Message
+        console.warn("Сообщение уже удалено — пропускаем");
+      } else {
+        console.error("Ошибка при удалении сообщения:", err);
+      }
+    } finally {
+      playerState.lastMessage = null;
+    }
   }
 
   playerState.player.play(resource); // "Нажать play на телефоне"
@@ -49,12 +55,13 @@ async function playTrack(track, interaction) {
       playerState.queue.length > 0 &&
       playerState.queue.index < playerState.queue.array.length - 1
     ) {
-      playerState.nextTrack = playerState.queue.next();
+      playerState.nextTrack = playerState.queue.next().name;
       playTrack(playerState.nextTrack, interaction);
     } else {
       playerState.isPlaying = false;
       playerState.currentTrack = null;
       playerState.queue = new ArrayNavigator([]);
+      if (playerState.lastMessage) playerState.lastMessage.delete();
     }
   });
 
@@ -63,118 +70,120 @@ async function playTrack(track, interaction) {
   });
 }
 
-// * ////////////////////////////
+// * ////////////////////////
 
-async function getMP3Metadata(track, interaction) {
-  const files = fs.readdirSync(MUSIC_PATH); // перебираем папку
-
-  const founder = files.filter((file) => {
-    // фильтруем на название трека в нижнем регистре
-    return file.toLowerCase().includes(track.toLowerCase());
-  });
-
-  if (founder.length === 0) {
-    interaction.editReply(`**Трек "${track}" не найден!**`);
-    return false;
+function stopPlayer(interaction) {
+  // Останавливаем воспроизведение, если плеер активен
+  if (!playerState.isPlaying)
+    interaction.editReply("**Нечего останавливать!**");
+  if (playerState.lastMessage) {
+    try {
+      playerState.lastMessage.delete();
+    } catch (err) {
+      if (err.code === 10008) {
+        // Unknown Message
+        console.warn("Сообщение уже удалено — пропускаем");
+      } else {
+        console.error("Ошибка при удалении сообщения:", err);
+      }
+    } finally {
+      playerState.lastMessage = null;
+    }
   }
 
-  const randomIndex = Math.floor(Math.random() * founder.length);
+  if (playerState.player) playerState.player.stop();
+  playerState.isPlaying = false;
+  playerState.currentTrack = null;
+  playerState.queue = new ArrayNavigator([]);
+  playerState.nextTrack = null;
 
-  const trackFullName = founder[randomIndex];
-
-  const parts = trackFullName.replace(/^\d+\.\s*/, "").replace(/\.mp3$/i, "");
-  const [authorNameRaw, songNameRaw] = parts.split(" - ").map((s) => s.trim());
-  const songName = songNameRaw || "Без названия";
-  const authorName = authorNameRaw || "Неизвестный автор";
-
-  const filePath = path.join(MUSIC_PATH, trackFullName); // создаём полный путь к треку
-  const tags = NodeID3.read(filePath); // читаем полученный трек на теги
-
-  const time = await getTrackDuration(filePath);
-
-  let coverPath = "./cover.jpg";
-  let def = "./default.jpg";
-  let attachment;
-  let url;
-  if (tags.image) {
-    fs.writeFileSync(coverPath, tags.image.imageBuffer);
-    attachment = new AttachmentBuilder(coverPath, { name: "cover.jpg" });
-    url = "attachment://cover.jpg";
-  } else {
-    attachment = new AttachmentBuilder(def, { name: "default.jpg" });
-    url = "attachment://default.jpg";
-  }
-  return {
-    trackFullName: trackFullName,
-    songName: songName,
-    authorName: authorName,
-    time: time,
-    url: url,
-    files: [attachment],
-  };
-}
-
-// * ///////////////////////
-
-async function embedFn(trackFullName, songName, authorName, time, url, files) {
-  if (playerState.isPlaying) {
-    // если песня уже играет, то передаём найденный файл в очередь
-    playerState.queue.push(trackFullName);
-  } else playerState.queue.push(trackFullName);
-  return {
-    embeds: [
-      new EmbedBuilder()
-        .setTitle(songName || "Без названия")
-        .setAuthor({
-          name: playerState.isPlaying
-            ? "Трек добавлен в очередь!"
-            : "Трек добавлен!",
-        })
-        .setDescription(authorName || "Неизвестный автор")
-        .setThumbnail(url)
-        .addFields({
-          name: `Длительность`,
-          value: time ? time : "00:00",
-          inline: true,
-        }),
-    ],
-    files: files,
-  };
+  interaction.deleteReply();
 }
 
 // * ////////////////////////
 
-async function getTrackDuration(filePath) {
-  try {
-    if (!fs.existsSync(filePath)) {
-      console.error("Файл не найден:", filePath);
-      return "00:00";
-    }
+async function prevTrackList(interaction) {
+  if (playerState.queue.length > 0) {
+    playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
+    playerState.player.removeAllListeners("error");
 
-    const metadata = await mm.parseFile(filePath);
-    const duration = metadata?.format?.duration;
-
-    if (!duration || isNaN(duration)) return "00:00";
-
-    const hours = Math.floor(duration / 3600);
-    const minutes = Math.floor((duration % 3600) / 60);
-    const seconds = Math.floor(duration % 60);
-
-    if (hours > 0) {
-      return `${hours}:${String(minutes).padStart(2, "0")}:${String(
-        seconds
-      ).padStart(2, "0")}`;
+    if (playerState.queue.index > 0) {
+      playerState.nextTrack = playerState.queue.prev().name;
+      await playTrack(playerState.nextTrack, interaction);
+      interaction.deleteReply();
     } else {
-      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
-        2,
-        "0"
-      )}`;
+      return interaction.editReply("**Это первый трек в списке!**");
     }
+  } else {
+    return interaction.editReply(`**Нет доступных треков!**`);
+  }
+}
+
+// * ////////////////////////
+
+async function nextTrackList(interaction) {
+  if (playerState.queue.length > 0) {
+    playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
+    playerState.player.removeAllListeners("error");
+
+    if (playerState.queue.index < playerState.queue.length - 1) {
+      playerState.nextTrack = playerState.queue.next().name;
+      await playTrack(playerState.nextTrack, interaction);
+      interaction.deleteReply(); // удаляем скрытый ответ
+    } else {
+      return interaction.editReply("**Это последний трек в списке!**");
+    }
+  } else {
+    return interaction.editReply(`**Нет доступных треков!**`);
+  }
+}
+
+// * ////////////////////////
+
+function queue(interaction) {
+  try {
+    console.log(`Запрос очереди`);
+
+    const tracks = playerState.queue.array.map((track) => ({
+      name: track.name,
+      user: track.user,
+    }));
+
+    const num = 10;
+    const pages = []; // Создаём массив для треков
+
+    for (let i = 0; i < tracks.length; i += num) {
+      const slice = tracks.slice(i, i + num);
+
+      const page = slice
+        .map((track, index) => {
+          const globalIndex = i + index;
+          if (globalIndex === playerState.queue.index) {
+            return `**${globalIndex + 1}) ${track.name
+              .replace(/^\d+\.\s*/, "")
+              .replace(/\.mp3$/i, "")}. (<@${track.user}>)**`;
+          } else {
+            return `${globalIndex + 1}) ${track.name
+              .replace(/^\d+\.\s*/, "")
+              .replace(/\.mp3$/i, "")}. (<@${track.user}>)`;
+          }
+        })
+        .join("\n\n");
+
+      pages.push(page); // пушим массивы и наполняем pages (!!!)
+    }
+
+    nav.setPages(pages); // теперь устанавливаем страницы на основе заполненного результатом цикла массивом
+
+    // обновляем embed внутри навигатора
+    nav.embed.setDescription(nav.current());
+
+    interaction.editReply({
+      embeds: [nav.embed],
+      components: [nav.pageRow],
+    });
   } catch (error) {
-    console.error(
-      `Ошибка при чтении длительности (${filePath}):`,
-      error.message
-    );
-    return "00:00";
+    console.log(`Произошла ошибка при выводе очереди: ${error.message}`);
+    return interaction.editReply(`**Произошла ошибка при выводе очереди!**`);
   }
 }
