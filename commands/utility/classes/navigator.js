@@ -5,7 +5,7 @@ class ArrayNavigator {
     }
 
     push(...elements) {
-        this.array.push(...elements) // elements становится массивом всех переданных аргументов // Эквивалентно: this.arr.push(element1, element2, element3, ...)
+        this.array.push(...elements) // elements становится массивом всех переданных аргументов. Эквивалентно: this.arr.push(element1, element2, element3, ...)
     }
 
     next() { // переключает на следующий элемент массива
@@ -35,10 +35,18 @@ class ArrayNavigator {
 
     indexOf(...elements) {
         this.array.indexOf(...elements)
+        return this.current()
     }
 
-    get length() { // Это геттер (getter) - специальный метод в JavaScript, который позволяет обращаться к свойству как к обычному полю, но при этом выполняется функция.
+    get length() { // getter - специальный метод в JavaScript, который позволяет обращаться к свойству как к обычному полю, но при этом выполняется функция.
         return this.array.length
+    }   
+    
+    delete(index) { // удаляет выбранный трек из очереди
+        if(index >= 0 && index < this.array.length) { 
+        this.array.splice(index, 1); 
+        if(this.index >= this.array.length) this.index = this.array.length - 1;
+        }
     }
     
 }

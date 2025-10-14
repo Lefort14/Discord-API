@@ -35,36 +35,6 @@ module.exports = {
                     if (err) throw err; 
                 })
             }
-
-            const channel = newState.guild.channels.cache.get('1383879797503164567');
-            
-            const mess = [
-                `О-о-о,`, `Ашалеть,`,
-                `Иу!`, `Салам, родной`
-            ]
-            
-            const randomMess = mess[Math.floor(Math.random() * mess.length)]
-
-            const nameUser = newState.member.displayName
-
-            try {
-                if(newState.channel) {
-                    let channel1 = newState.channel.name
-                    
-                    if(newState.channel.name === 'Лестница Ниситы') {
-                        channel1 = 'пришёл на лестницу Ниситы'
-                    }
-                    if(newState.channel.name === 'Станция Отдых') {
-                        channel1 = 'пришёл на станцию Отдых'
-                    }
-                    if(newState.channel.name === 'Дом в Шатуре') {
-                        channel1 = 'зашёл в дом в Шатуре'
-                    }
-                    channel.send(`**${randomMess} ${nameUser} ${channel1}!**`);              
-                } 
-            } catch(error) {
-                console.log('Произошла ошибка:' + ` ${error}`);  
-            }
         }
     }
 }

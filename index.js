@@ -11,6 +11,7 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates
     ]
 });
+module.exports = client
 
 client.cooldowns = new Collection();
 client.commands = new Collection();

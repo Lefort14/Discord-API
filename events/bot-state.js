@@ -2,7 +2,9 @@ const { Events } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
 const { ArrayNavigator } = require("../commands/utility/classes/navigator.js");
-const { playerState } = require("../commands/utility/controllers/music-player.js");
+const {
+  playerState,
+} = require("../commands/utility/classes/playerState-fs.js");
 
 const logsPath = path.join(__dirname, "logs.txt");
 
@@ -57,8 +59,21 @@ module.exports = {
 
 function cleanPlayer() {
   // Останавливаем воспроизведение, если плеер активен
-  if (playerState.player) {
-    playerState.player.stop();
+  if (playerState.player) playerState.player.stop();
+
+  if (playerState.lastMessage) {
+    try {
+      playerState.lastMessage.delete();
+    } catch (err) {
+      if (err.code === 10008) {
+        // Unknown Message
+        console.warn("Сообщение уже удалено — пропускаем");
+      } else {
+        console.error("Ошибка при удалении сообщения:", err);
+      }
+    } finally {
+      playerState.lastMessage = null;
+    }
   }
 
   playerState.connection = null;
@@ -67,5 +82,4 @@ function cleanPlayer() {
   playerState.currentTrack = null;
   playerState.queue = new ArrayNavigator([]);
   playerState.nextTrack = null;
-  playerState.lastMessage = null;
 }

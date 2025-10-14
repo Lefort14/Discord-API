@@ -7,9 +7,11 @@ class State {
         this.currentTrack = null
         this.queue = new ArrayNavigator()
         this.nextTrack = null
-        this.connection = null
+        this.connection = null 
         this.lastMessage = null
     }
 }
 
-module.exports = { State }
+const playerState = new State();
+
+module.exports = { State, playerState }

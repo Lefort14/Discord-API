@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js')
 const { AudioPlayerStatus } = require('@discordjs/voice')
-const { playerState } = require('./controllers/music-player')
+const { playerState } = require('./classes/playerState-fs')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -9,16 +9,12 @@ module.exports = {
     async execute(interaction) {
         try {
             
-            await interaction.deferReply()
+            await interaction.deferReply({ ephemeral: true })
             
             if (!interaction.member.voice.channel) {
                 return interaction.editReply(
                     "**Ты не в можешь продолжить воспроизведение, так как ты не в голосовом чате!**"
                 );
-            }
-            
-            if(!interaction.member.voice.channel) {
-                interaction.editReply(`зайди в голосовой чат!`);
             }
 
             if (!playerState.player) {
