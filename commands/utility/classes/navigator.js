@@ -5,18 +5,18 @@ class ArrayNavigator {
     }
 
     push(...elements) {
-        this.array.push(...elements) // elements становится массивом всех переданных аргументов. Эквивалентно: this.arr.push(element1, element2, element3, ...)
+        this.array.push(...elements) 
     }
 
     next() { // переключает на следующий элемент массива
-        if(this.index < this.array.length - 1) { // если индекс меньше, чем длина массива - 1
+        if(this.index < this.array.length - 1) { 
             this.index++ 
         }
         return this.current()
     }
 
     prev() { //переключает на предыдущий элемент массива
-        if(this.index > 0) { // если индекс больше 0
+        if(this.index > 0) { 
             this.index--
         } 
         return this.current()
@@ -33,7 +33,7 @@ class ArrayNavigator {
         return this.current()
     }
 
-    indexOf(...elements) {
+    indexOf(...elements) { // возвращает индекс первого совпавшего элемента массива
         this.array.indexOf(...elements)
         return this.current()
     }
