@@ -10,7 +10,7 @@ module.exports = {
     .setDescription("Играет музыку!")
     .addStringOption((option) =>
       option
-        .setName("choice")
+        .setName("ввод")
         .setDescription("Введите название песни!")
         .setRequired(true)
     ),
@@ -25,7 +25,7 @@ module.exports = {
         return interaction.editReply(`**зайди в голосовой чат!**`);
       }
 
-      const track = interaction.options.getString("choice"); // считываем значение ввода аргумента слеш команды
+      const track = interaction.options.getString("ввод"); // считываем значение ввода аргумента слеш команды
 
       const getTrack = await getMP3Metadata(track, interaction);
       if (!getTrack) return;
@@ -44,8 +44,12 @@ module.exports = {
 
       if (!playerState.currentTrack) return;
 
+      playerState.queue.push({
+        name: getTrack.trackFullName,
+        user: interaction.user.id
+      });
+      
       const getEmbed = await embedFn(
-        getTrack.trackFullName,
         getTrack.songName,
         getTrack.authorName,
         getTrack.time,
