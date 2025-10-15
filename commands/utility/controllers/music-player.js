@@ -28,7 +28,7 @@ async function playTrack(track, interaction) {
 
   if (playerState.lastMessage) {
     try {
-      await playerState.lastMessage.delete();
+      playerState.lastMessage.delete();
     } catch (err) {
       if (err.code === 10008) {
         // Unknown Message
@@ -61,7 +61,6 @@ async function playTrack(track, interaction) {
       playerState.isPlaying = false;
       playerState.currentTrack = null;
       playerState.queue = new ArrayNavigator([]);
-      if (playerState.lastMessage) playerState.lastMessage.delete();
     }
   });
 
