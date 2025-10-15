@@ -62,12 +62,7 @@ async function getMP3Metadata(track, interaction) {
 
 // * ///////////////////////
 
-async function embedFn(trackFullName, songName, authorName, time, url, files, interaction) {
-    playerState.queue.push({
-      name: trackFullName,
-      user: interaction.user.id
-    });
-
+async function embedFn(songName, authorName, time, url, files, interaction) {
   return {
     embeds: [
       new EmbedBuilder()
