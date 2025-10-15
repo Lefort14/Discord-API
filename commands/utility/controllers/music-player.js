@@ -20,15 +20,21 @@ async function playTrack(track, interaction) {
   const resource = createAudioResource(`${MUSIC_PATH}/` + `${track}`); // создаём папку с аудиоресурсом. "Выбрать песню в приложении"
   const channel = interaction.channel;
 
+  
   if (!playerState.player) {
     // если нет аудиоплеера, то создаём его
     playerState.player = createAudioPlayer(); // "Включить музыку на телефоне"
     playerState.connection.subscribe(playerState.player); // "Подключить телефон к колонкам"
   }
+  
+  if (playerState.queue.length > 0) {
+    playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
+    playerState.player.removeAllListeners("error");
+  }
 
   if (playerState.lastMessage) {
     try {
-      playerState.lastMessage.delete();
+      await playerState.lastMessage.delete();
     } catch (err) {
       if (err.code === 10008) {
         // Unknown Message
@@ -49,18 +55,33 @@ async function playTrack(track, interaction) {
     `**Сейчас играет: ${trackName}**`
   );
 
-  playerState.player.on(AudioPlayerStatus.Idle, () => {
+  playerState.player.on(AudioPlayerStatus.Idle, async () => {
     // если песня закончилась, то включить следующий трек в очереди, если его нет, то очищаем очередь и состояние плеера
     if (
       playerState.queue.length > 0 &&
       playerState.queue.index < playerState.queue.array.length - 1
     ) {
       playerState.nextTrack = playerState.queue.next().name;
-      playTrack(playerState.nextTrack, interaction);
+      await playTrack(playerState.nextTrack, interaction);
     } else {
       playerState.isPlaying = false;
       playerState.currentTrack = null;
       playerState.queue = new ArrayNavigator([]);
+      
+      if (playerState.lastMessage) {
+        try {
+          await playerState.lastMessage.delete();
+      } catch (err) {
+        if (err.code === 10008) {
+          // Unknown Message
+          console.warn("Сообщение уже удалено — пропускаем");
+        } else {
+          console.error("Ошибка при удалении сообщения:", err);
+        }
+      } finally {
+        playerState.lastMessage = null;
+      }
+  }
     }
   });
 
