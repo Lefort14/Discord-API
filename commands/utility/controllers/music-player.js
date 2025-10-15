@@ -26,8 +26,8 @@ async function playTrack(track, interaction) {
     playerState.player = createAudioPlayer(); // "Включить музыку на телефоне"
     playerState.connection.subscribe(playerState.player); // "Подключить телефон к колонкам"
   }
-  
-  if (playerState.queue.length > 0) {
+
+  if (playerState.queue.length - 1 > 0) {
     playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
     playerState.player.removeAllListeners("error");
   }
