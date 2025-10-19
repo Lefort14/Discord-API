@@ -4,7 +4,7 @@ const {
   AudioPlayerStatus,
 } = require("@discordjs/voice");
 const { playerState } = require("../classes/playerState-fs.js");
-const { nav } = require("../classes/queueNavigator.js");
+const { nav } = require("../classes/pageNavigator.js");
 const { ArrayNavigator } = require("../classes/navigator.js");
 const MUSIC_PATH = require("./path.js");
 
@@ -20,17 +20,16 @@ async function playTrack(track, interaction) {
   const resource = createAudioResource(`${MUSIC_PATH}/` + `${track}`); // создаём папку с аудиоресурсом. "Выбрать песню в приложении"
   const channel = interaction.channel;
 
-  
   if (!playerState.player) {
     // если нет аудиоплеера, то создаём его
     playerState.player = createAudioPlayer(); // "Включить музыку на телефоне"
     playerState.connection.subscribe(playerState.player); // "Подключить телефон к колонкам"
   }
 
-  if (playerState.queue.length - 1 > 0) {
-    playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
-    playerState.player.removeAllListeners("error");
-  }
+  // if (playerState.queue.length - 1 > 0) {
+  //   playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
+  //   playerState.player.removeAllListeners("error");
+  // }
 
   if (playerState.lastMessage) {
     try {
@@ -55,7 +54,7 @@ async function playTrack(track, interaction) {
     `**Сейчас играет: ${trackName}**`
   );
 
-  playerState.player.on(AudioPlayerStatus.Idle, async () => {
+  playerState.player.once(AudioPlayerStatus.Idle, async () => {
     // если песня закончилась, то включить следующий трек в очереди, если его нет, то очищаем очередь и состояние плеера
     if (
       playerState.queue.length > 0 &&
@@ -67,32 +66,32 @@ async function playTrack(track, interaction) {
       playerState.isPlaying = false;
       playerState.currentTrack = null;
       playerState.queue = new ArrayNavigator([]);
-      
+
       if (playerState.lastMessage) {
         try {
           await playerState.lastMessage.delete();
-      } catch (err) {
-        if (err.code === 10008) {
-          // Unknown Message
-          console.warn("Сообщение уже удалено — пропускаем");
-        } else {
-          console.error("Ошибка при удалении сообщения:", err);
+        } catch (err) {
+          if (err.code === 10008) {
+            // Unknown Message
+            console.warn("Сообщение уже удалено — пропускаем");
+          } else {
+            console.error("Ошибка при удалении сообщения:", err);
+          }
+        } finally {
+          playerState.lastMessage = null;
         }
-      } finally {
-        playerState.lastMessage = null;
       }
-  }
     }
   });
 
-  playerState.player.on("error", (error) => {
+  playerState.player.once("error", (error) => {
     console.log("Произошла ошибка:" + ` ${error}`);
   });
 }
 
 // * ////////////////////////
 
-function stopPlayer(interaction) {
+async function stopPlayer(interaction) {
   // Останавливаем воспроизведение, если плеер активен
   if (!playerState.isPlaying)
     interaction.editReply("**Нечего останавливать!**");
@@ -124,8 +123,8 @@ function stopPlayer(interaction) {
 
 async function prevTrackList(interaction) {
   if (playerState.queue.length > 0) {
-    playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
-    playerState.player.removeAllListeners("error");
+    // playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
+    // playerState.player.removeAllListeners("error");
 
     if (playerState.queue.index > 0) {
       playerState.nextTrack = playerState.queue.prev().name;
@@ -143,8 +142,8 @@ async function prevTrackList(interaction) {
 
 async function nextTrackList(interaction) {
   if (playerState.queue.length > 0) {
-    playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
-    playerState.player.removeAllListeners("error");
+    // playerState.player.removeAllListeners(AudioPlayerStatus.Idle);
+    // playerState.player.removeAllListeners("error");
 
     if (playerState.queue.index < playerState.queue.length - 1) {
       playerState.nextTrack = playerState.queue.next().name;
@@ -160,7 +159,7 @@ async function nextTrackList(interaction) {
 
 // * ////////////////////////
 
-function queue(interaction) {
+async function queue(interaction) {
   try {
     console.log(`Запрос очереди`);
 
@@ -179,13 +178,15 @@ function queue(interaction) {
         .map((track, index) => {
           const globalIndex = i + index;
           if (globalIndex === playerState.queue.index) {
-            return `**${globalIndex + 1}) ${track.name
-              .replace(/^\d+\.\s*/, "")
-              .replace(/\.mp3$/i, "")}. (<@${track.user}>)**`;
+            return `**${globalIndex + 1}) ${
+              track.name
+                .replace(/^\d+\.\s*/, "")
+                .replace(/\.mp3$/i, "")}. (<@${track.user}>)**`;
           } else {
-            return `${globalIndex + 1}) ${track.name
-              .replace(/^\d+\.\s*/, "")
-              .replace(/\.mp3$/i, "")}. (<@${track.user}>)`;
+            return `${globalIndex + 1}) ${
+              track.name
+                .replace(/^\d+\.\s*/, "")
+                .replace(/\.mp3$/i, "")}. (<@${track.user}>)`;
           }
         })
         .join("\n\n");
@@ -196,9 +197,12 @@ function queue(interaction) {
     nav.setPages(pages); // теперь устанавливаем страницы на основе заполненного результатом цикла массивом
 
     // обновляем embed внутри навигатора
-    nav.embed.setDescription(nav.current());
+    nav.embed.setDescription(nav.current()).setTitle(`**Очередь треков:**`);
 
-    interaction.editReply({
+    nav.pageRow.components[0].setCustomId("queue_prev_page");
+    nav.pageRow.components[1].setCustomId("queue_next_page");
+
+    await interaction.editReply({
       embeds: [nav.embed],
       components: [nav.pageRow],
     });
