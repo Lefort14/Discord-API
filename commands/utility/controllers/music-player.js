@@ -5,7 +5,7 @@ const {
 } = require("@discordjs/voice");
 const { playerState } = require("../classes/playerState-fs.js");
 const { nav } = require("../classes/pageNavigator.js");
-const { ArrayNavigator } = require("../classes/navigator.js");
+const { ArrayNavigator } = require("../classes/arrayNavigator.js");
 const MUSIC_PATH = require("./path.js");
 
 module.exports = {
@@ -178,15 +178,13 @@ async function queue(interaction) {
         .map((track, index) => {
           const globalIndex = i + index;
           if (globalIndex === playerState.queue.index) {
-            return `**${globalIndex + 1}) ${
-              track.name
-                .replace(/^\d+\.\s*/, "")
-                .replace(/\.mp3$/i, "")}. (<@${track.user}>)**`;
+            return `**${globalIndex + 1}) ${track.name
+              .replace(/^\d+\.\s*/, "")
+              .replace(/\.mp3$/i, "")}. (<@${track.user}>)**`;
           } else {
-            return `${globalIndex + 1}) ${
-              track.name
-                .replace(/^\d+\.\s*/, "")
-                .replace(/\.mp3$/i, "")}. (<@${track.user}>)`;
+            return `${globalIndex + 1}) ${track.name
+              .replace(/^\d+\.\s*/, "")
+              .replace(/\.mp3$/i, "")}. (<@${track.user}>)`;
           }
         })
         .join("\n\n");

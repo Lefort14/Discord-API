@@ -1,7 +1,7 @@
 const { Events } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
-const { ArrayNavigator } = require("../commands/utility/classes/navigator.js");
+const { ArrayNavigator } = require("../commands/utility/classes/arrayNavigator.js");
 const {
   playerState,
 } = require("../commands/utility/classes/playerState-fs.js");
