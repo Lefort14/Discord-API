@@ -14,4 +14,4 @@ class State {
 
 const playerState = new State();
 
-module.exports = { State, playerState }
+module.exports = { playerState }
