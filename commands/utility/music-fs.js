@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require("discord.js");
 const { joinVoiceChannel } = require("@discordjs/voice");
 const { playTrack } = require("./controllers/music-player.js");
-const { getMP3Metadata, embedFn } = require("./controllers/get-music-data.js");
+const { getMP3Metadata, embedFn, getChoices } = require("./controllers/get-music-data.js");
 const { playerState } = require("./classes/playerState-fs.js");
 
 module.exports = {
@@ -54,8 +54,7 @@ module.exports = {
         getTrack.authorName,
         getTrack.time,
         getTrack.url,
-        getTrack.files,
-        interaction
+        getTrack.files
       );
 
       await interaction.editReply(getEmbed);
