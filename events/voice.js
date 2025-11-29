@@ -15,7 +15,7 @@ module.exports = {
             if(!oldState.channel && newState.channel) {
                 console.log(`[${date()}] ${newState.member.user.username} зашёл в ${newState.channel.name}`)
             
-                fs.writeFile('E:/JS/Discord-API/events/logs.txt', `[${date()}] ${newState.member.user.username} зашёл в ${newState.channel.name}` + '\n', { flag: 'a' }, (err) => {
+                fs.writeFile('./events/logs.txt', `[${date()}] ${newState.member.user.username} зашёл в ${newState.channel.name}` + '\n', { flag: 'a' }, (err) => {
                     if (err) throw err; 
                 })
             }
@@ -23,7 +23,7 @@ module.exports = {
             if(oldState.channel && !newState.channel) {
                 console.log(`[${date()}] ${newState.member.user.username} вышел из ${oldState.channel.name}`)
             
-                fs.writeFile('E:/JS/Discord-API/events/logs.txt', `[${date()}] ${newState.member.user.username} вышел из ${oldState.channel.name}` + '\n', { flag: 'a' }, (err) => {
+                fs.writeFile('./events/logs.txt', `[${date()}] ${newState.member.user.username} вышел из ${oldState.channel.name}` + '\n', { flag: 'a' }, (err) => {
                     if (err) throw err; 
                 })
             }
@@ -31,7 +31,7 @@ module.exports = {
             if(oldState.channel && newState.channel) {
                 console.log(`[${date()}] ${newState.member.user.username} перешёл из ${oldState.channel.name} в ${newState.channel.name}`)
             
-                fs.writeFile('E:/JS/Discord-API/events/logs.txt', `[${date()}] ${newState.member.user.username} перешёл из ${oldState.channel.name} в ${newState.channel.name}` + '\n', { flag: 'a' }, (err) => {
+                fs.writeFile('./events/logs.txt', `[${date()}] ${newState.member.user.username} перешёл из ${oldState.channel.name} в ${newState.channel.name}` + '\n', { flag: 'a' }, (err) => {
                     if (err) throw err; 
                 })
             }
